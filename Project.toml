@@ -2,3 +2,8 @@ name = "IntersectionOverUnionUnitBall"
 uuid = "857d3920-ebd6-4166-b9c7-dcf09316d537"
 authors = ["Gustavo Goretkin <gustavo.goretkin@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+GeometryTypes = "4d00f742-c7ba-57c2-abde-4428a4b178cb"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
