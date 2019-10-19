@@ -53,6 +53,4 @@ end
 
 ball_samples(n) = [random_bb_at_iou(bb_reference, 0.5) for _=1:n]
 
-#Plots.scatter(map(bb->Point(bb.origin...), M.ball_samples(30000)); aspect_ratio=1)
-
 end # module
