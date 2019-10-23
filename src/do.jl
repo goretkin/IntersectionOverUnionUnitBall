@@ -9,9 +9,9 @@ using Plots: Shape
 using Plots
 
 function Shape(r::HyperRectangle{2})
-  (w, h) = r.widths ./ 2
+  (w, h) = r.widths
   (x, y) = r.origin
-  Shape(x .+ [-w,w,w,-w], y .+ [-h,-h,h,h])
+  Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
 end
 
 N = 30000
@@ -62,52 +62,11 @@ function walk(n_walk)
 end
 
 
-
-for i in walk(4000)[1:4:end]
+anim = walk(4000)[1:4:end]
+for i in anim
   p = Plots.plot(Shape(bb_reference);
     aspect_ratio=1, xlims=(-2,2), ylims=(-2,2))
   Plots.plot!(p, Shape(samples[i]); fillalpha=0.2, fillcolor=:orange)
+  #Plots.plot!(p, Shape(bb_reference ∩ samples[i]), alpha=0.3, fillcolor=:green)
   display(p)
 end
-
-#=
-dist_mat_I = Int64[]
-dist_mat_J = Int64[]
-dist_mat_V = Float64[]
-coo = Dict{Tuple{Int64, Int64}, Float64}()
-
-function update_distance(i, j, v)
-  push!(dist_mat_I, i)
-  push!(dist_mat_J, j)
-  push!(dist_mat_V, v)
-  # symmetric
-  #push!(dist_mat_I, j)
-  #push!(dist_mat_J, i)
-  #push!(dist_mat_V, v)
-end
-
-for idx1 = 1:N
-  for idx2 in idxs_nn[idx1]
-    v = iou(samples[idx1], samples[idx2])
-    update_distance(idx1, idx2, 1-v)
-    coo[(idx1, idx2)] = 1-v
-  end
-end
-
-m_dist = sparse(dist_mat_I, dist_mat_J, dist_mat_V)
-
-include("tsp.jl")
-
-function distance_f(from_i, to_i)
-  idx = (from_i + 1, to_i + 1)
-  @show idx
-  if haskey(coo, idx)
-    Int(round(100000 * coo[idx]))
-  else
-    1000000000
-  end
-end
-
-prob_sol = setup_solve_tsp(distance_f, N)
-tour = extract_tour(prob_sol)
-=#
