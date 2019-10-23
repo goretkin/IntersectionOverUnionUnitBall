@@ -33,23 +33,23 @@ function random_bb()
   return HyperRectangle(sampled_center .- sampled_widths ./2, sampled_widths)
 end
 
-function hunt_iou(ref_bb, other_bb, iou_goal)
+function hunt_iou(bb_ref, bb1, bb2, iou_goal)
   @assert iou_goal < 1
-  family(α) = interpolate(ref_bb, other_bb, α)
-  f(α) = iou(ref_bb, family(α)) - iou_goal
-  # f(0) > 0 by construction
+  family(α) = interpolate(bb1, bb2, α)
+  f(α) = iou(bb_ref, family(α)) - iou_goal
   @assert f(1) < 0
+  @assert f(0) > 0
   α_star = find_zero(f, (0,1), Bisection())
   return family(α_star)
 end
 
-function random_bb_at_iou(ref_bb, iou_goal)
+function random_bb_at_iou(bb_ref, iou_goal)
   while true
     rand_bb = random_bb()
-    if iou(ref_bb, rand_bb) >= iou_goal
+    if iou(bb_ref, rand_bb) >= iou_goal
       continue
     end
-    return hunt_iou(ref_bb, rand_bb, iou_goal)
+    return hunt_iou(bb_ref, bb_ref, rand_bb, iou_goal)
   end
 end
 
