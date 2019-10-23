@@ -21,7 +21,7 @@ function interpolate(bb1::HyperRectangle, bb2::HyperRectangle, α)
   return HyperRectangle(origin, widths)
 end
 
-bb_reference = HyperRectangle(Vec(0.0, 0.0), Vec(1.0, 1.0))
+bb_reference = HyperRectangle(Vec(-0.5, -0.5), Vec(1.0, 1.0))
 
 function random_bb()
   possible_centers = HyperRectangle(Vec(-2.5, -2.5), Vec(5.0, 5.0))
