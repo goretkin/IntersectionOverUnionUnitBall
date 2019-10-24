@@ -8,12 +8,6 @@ using GeometryTypes: HyperRectangle
 using Plots: Shape
 using Plots
 
-function Shape(r::HyperRectangle{2})
-  (w, h) = r.widths
-  (x, y) = r.origin
-  Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
-end
-
 N = 30000
 k_nn = 20
 samples = ball_samples(N)

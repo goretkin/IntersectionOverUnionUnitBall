@@ -2,12 +2,15 @@ module IntersectionOverUnionUnitBall
 
 using GeometryTypes: HyperRectangle, Vec
 using Roots: find_zero, Bisection
+include("PlotsGeometryTypes.jl")
 
 measure(bb::HyperRectangle) = prod(bb.widths)
 center(bb::HyperRectangle) = bb.origin .+ bb.widths./2
 
 function iou(bb1::HyperRectangle, bb2::HyperRectangle)
-  measure_i = measure(bb1 ∩ bb2)
+  bb_ = bb1 ∩ bb2 # GeometryTypes intersection is imo broken for the empty case
+  bb_i = HyperRectangle(bb_.origin, max.(0, bb_.widths))
+  measure_i = measure(bb_i)
   measure_u = measure(bb1) + measure(bb2) - measure_i
   return measure_i / measure_u
 end
@@ -39,6 +42,7 @@ function hunt_iou(bb_ref, bb1, bb2, iou_goal)
   f(α) = iou(bb_ref, family(α)) - iou_goal
   @assert f(1) < 0
   @assert f(0) > 0
+
   α_star = find_zero(f, (0,1), Bisection())
   return family(α_star)
 end
@@ -54,5 +58,20 @@ function random_bb_at_iou(bb_ref, iou_goal)
 end
 
 ball_samples(n) = [random_bb_at_iou(bb_reference, 0.5) for _=1:n]
+
+using Plots: Plots, Shape
+using GeometryTypes: Point
+p = nothing
+function iou_ball(iou_radius, bb_ref, width, height, n)
+  global p;
+  widths_o = Vec(width, height)
+  over_sqrt_2 = 1.5
+  # find radius which ensures iou=0
+  r = over_sqrt_2 * (maximum(widths_o) + maximum(bb_ref.widths))
+  centers = (r * Vec(cosd(θ), sind(θ)) for θ in range(0, 360, length=n))
+  bb_others = (HyperRectangle(center  .- widths_o/2, widths_o) for center in centers)
+  bb_1 = HyperRectangle(center(bb_ref) .- widths_o/2, widths_o)
+  [hunt_iou(bb_ref, bb_1, bb_other, iou_radius) for bb_other in bb_others]
+end
 
 end # module
