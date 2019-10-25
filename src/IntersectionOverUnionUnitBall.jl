@@ -61,14 +61,16 @@ ball_samples(n) = [random_bb_at_iou(bb_reference, 0.5) for _=1:n]
 
 using Plots: Plots, Shape
 using GeometryTypes: Point
-p = nothing
+
+"""
+returns path (path[1] ≠ path[end]) of "unit circle"
+"""
 function iou_ball(iou_radius, bb_ref, width, height, n)
-  global p;
   widths_o = Vec(width, height)
   over_sqrt_2 = 1.5
   # find radius which ensures iou=0
   r = over_sqrt_2 * (maximum(widths_o) + maximum(bb_ref.widths))
-  centers = (r * Vec(cosd(θ), sind(θ)) for θ in range(0, 360, length=n))
+  centers = (r * Vec(cosd(θ), sind(θ)) for θ in range(0, 360, length=n)[1:end-1])
   bb_others = (HyperRectangle(center  .- widths_o/2, widths_o) for center in centers)
   bb_1 = HyperRectangle(center(bb_ref) .- widths_o/2, widths_o)
   [hunt_iou(bb_ref, bb_1, bb_other, iou_radius) for bb_other in bb_others]

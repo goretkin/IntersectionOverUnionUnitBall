@@ -29,9 +29,9 @@ version = "1.3.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "f94423c68f2e47db0d6f626a26d4872266e0ec3d"
+git-tree-sha1 = "2103e504f427e54ffa19af9ada225733a21f951f"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.17.2"
+version = "0.17.3"
 
 [[Dates]]
 deps = ["Printf"]
@@ -125,6 +125,14 @@ version = "0.3.7"
 deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
+[[PolygonMinkowskiSum]]
+deps = ["GeometryTypes", "LinearAlgebra", "RecipesBase", "Unitful"]
+git-tree-sha1 = "d07b206cc375888db59bec8661e0dcc14b91f48b"
+repo-rev = "master"
+repo-url = "https://github.com/goretkin/PolygonMinkowskiSum.jl"
+uuid = "f8f4e1b7-9a3c-5379-96bf-0cabd3684a21"
+version = "0.1.1"
+
 [[Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
@@ -142,6 +150,11 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 [[Random]]
 deps = ["Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[RecipesBase]]
+git-tree-sha1 = "7bdce29bc9b2f5660a6e5e64d64d91ec941f6aa2"
+uuid = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
+version = "0.7.0"
 
 [[Roots]]
 deps = ["Printf"]
@@ -185,18 +198,18 @@ git-tree-sha1 = "dfcdbbfb2d0370716c815cbd6f8a364efb6f42cf"
 uuid = "0796e94c-ce3b-5d07-9a54-7f471281c624"
 version = "0.5.6"
 
-[[TravelingSalesmanHeuristics]]
-deps = ["LinearAlgebra", "Random"]
-path = "/Users/goretkin/.julia/dev/TravelingSalesmanHeuristics"
-uuid = "8c8f4381-2cdd-507c-846c-be2bcff6f45f"
-version = "0.3.1+"
-
 [[UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+[[Unitful]]
+deps = ["LinearAlgebra", "Random"]
+git-tree-sha1 = "92bdf0ccfa9612b167d0adaadef832a09971ceb0"
+uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
+version = "0.17.0"
 
 [[VersionParsing]]
 deps = ["Compat"]
