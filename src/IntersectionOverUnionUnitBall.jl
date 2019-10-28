@@ -65,12 +65,12 @@ using GeometryTypes: Point
 """
 returns path (path[1] ≠ path[end]) of "unit circle"
 """
-function iou_ball(iou_radius, bb_ref, width, height, n)
-  widths_o = Vec(width, height)
+function iou_ball(iou_radius, bb_ref, widths, n)
+  widths_o = Vec(widths...)
   over_sqrt_2 = 1.5
   # find radius which ensures iou=0
   r = over_sqrt_2 * (maximum(widths_o) + maximum(bb_ref.widths))
-  centers = (r * Vec(cosd(θ), sind(θ)) for θ in range(0, 360, length=n)[1:end-1])
+  centers = (r * Vec(cosd(θ), sind(θ)) for θ in range(0, 360, length=n+1)[1:end-1])
   bb_others = (HyperRectangle(center  .- widths_o/2, widths_o) for center in centers)
   bb_1 = HyperRectangle(center(bb_ref) .- widths_o/2, widths_o)
   [hunt_iou(bb_ref, bb_1, bb_other, iou_radius) for bb_other in bb_others]
