@@ -1,9 +1,12 @@
 using Plots
 using Printf
+import IntersectionOverUnionUnitBall
 using IntersectionOverUnionUnitBall: iou_ball, bb_reference, center, iou
 using GeometryTypes: Point, HyperRectangle, Vec
 using PolygonMinkowskiSum: SimplePolygon, minkowski_sum
 using StructArrays
+
+Plots.pyplot()
 
 # maybe broadcast (.+) is more appropriate
 function Base.:+(point::Point, poly::SimplePolygon)
@@ -91,5 +94,15 @@ function make_frame(;
     end
     return p
 end
-p = make_frame()
+
+path_frames = abspath(joinpath(pathof(IntersectionOverUnionUnitBall), "../../build/frames"))
+mkpath(path_frames)
+for (i, iou_radius) = enumerate(range(0.5, 0.9, step=0.01))
+    @show i, iou_radius
+    i_str = @sprintf "%04d" i
+    p = make_frame(iou_radius=iou_radius)
+    path_frame = joinpath(path_frames, "$(i_str).png")
+    Plots.savefig(p, path_frame)
+end
+
 display(p)
