@@ -1,7 +1,7 @@
 using Plots
 using Printf
 import IntersectionOverUnionUnitBall
-using IntersectionOverUnionUnitBall: iou_ball, bb_reference, center, iou
+using IntersectionOverUnionUnitBall: iou_ball, bb_reference, center, iou, giou
 using GeometryTypes: Point, HyperRectangle, Vec
 using PolygonMinkowskiSum: SimplePolygon, minkowski_sum
 using StructArrays
@@ -24,7 +24,29 @@ function make_once()
     end
 end
 
+function plot_instance(p, iou_radius, bb_reference, other_widths, iou, fig_center=Point(0,0))
+    sweepme = HyperRectangle(Vec(0, 0) - other_widths/2, other_widths)
+    center_path = map(x->Point(center(x)...), iou_ball(iou_radius, bb_reference, other_widths, 200, iou))
+    outer = minkowski_sum(SimplePolygon(sweepme), SimplePolygon(center_path))
 
+    Plots.plot!(p, fig_center + SimplePolygon(bb_reference);
+        fillalpha=0.2, fillcolor=:blue, linecolor=:gray, label="reference")
+
+    example_p = center_path[1]
+    example = HyperRectangle(sweepme.origin + example_p, sweepme.widths)
+    Plots.plot!(p, fig_center + SimplePolygon(example);
+        fillalpha=0.2, fillcolor=:green, linecolor=:gray, label="example")
+
+    Plots.plot!(p, fig_center + SimplePolygon(center_path);
+        fillalpha=0, linecolor=:black, linestyle=:solid, label="center")
+    Plots.plot!(p, fig_center + outer;
+        fillalpha=0, linecolor=:red, linestyle=:dot, label="outer")
+    #=
+    Plots.scatter!(p, [fig_center + example_p];
+        color=:green, label="example")
+    =#
+    return p
+end
 
 function make_frame(;
     subfigure_center_spacing = 2.6,
@@ -64,45 +86,28 @@ function make_frame(;
         other_widths = Vec(w, h)
         fig_center = Point((subfigure_center_spacing .* fig_ij)...)
 
-
-        sweepme = HyperRectangle(Vec(0, 0) - other_widths/2, other_widths)
         max_iou = iou(sweepme, bb_reference)
         if max_iou <= iou_radius
             # position of `sweepme` has enough iou with bb_reference
             continue
         end
-
-        center_path = map(x->Point(center(x)...), iou_ball(iou_radius, bb_reference, other_widths, 200))
-        outer = minkowski_sum(SimplePolygon(sweepme), SimplePolygon(center_path))
-
-        Plots.plot!(p, fig_center + SimplePolygon(bb_reference);
-            fillalpha=0.2, fillcolor=:blue, linecolor=:gray, once(fig_ij, (label="reference",))...)
-
-        example_p = center_path[1]
-        example = HyperRectangle(sweepme.origin + example_p, sweepme.widths)
-        Plots.plot!(p, fig_center + SimplePolygon(example);
-            fillalpha=0.2, fillcolor=:green, linecolor=:gray, once(fig_ij, (label="example",))...)
-
-        Plots.plot!(p, fig_center + SimplePolygon(center_path);
-            fillalpha=0, linecolor=:black, linestyle=:solid, once(fig_ij, (label="center",))...)
-        Plots.plot!(p, fig_center + outer;
-            fillalpha=0, linecolor=:red, linestyle=:dot, once(fig_ij, (label="outer",))...)
-        #=
-        Plots.scatter!(p, [fig_center + example_p];
-            color=:green, once(fig_ij, (label="example",))...)
-        =#
+        plot_instance(p, iou_radius, bb_reference, other_widths, iou, fig_center)
     end
     return p
 end
 
-path_frames = abspath(joinpath(pathof(IntersectionOverUnionUnitBall), "../../build/frames"))
-mkpath(path_frames)
-for (i, iou_radius) = enumerate(range(0.5, 0.9, step=0.01))
-    @show i, iou_radius
-    i_str = @sprintf "%04d" i
-    p = make_frame(iou_radius=iou_radius)
-    path_frame = joinpath(path_frames, "$(i_str).png")
-    Plots.savefig(p, path_frame)
+function do_animation()
+    path_frames = abspath(joinpath(pathof(IntersectionOverUnionUnitBall), "../../build/frames"))
+    mkpath(path_frames)
+    for (i, iou_radius) = enumerate(range(0.5, 0.9, step=0.01))
+        @show i, iou_radius
+        i_str = @sprintf "%04d" i
+        p = make_frame(iou_radius=iou_radius)
+        path_frame = joinpath(path_frames, "$(i_str).png")
+        Plots.savefig(p, path_frame)
+    end
 end
 
-display(p)
+p = Plots.plot(;aspect_ratio=1)
+plot_instance(p, 0.5, bb_reference, Vec(1.5, 0.8), giou)
+plot_instance(p, 0.5, bb_reference, Vec(1.5, 0.8), iou)

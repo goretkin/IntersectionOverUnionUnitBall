@@ -16,6 +16,20 @@ function iou(bb1::HyperRectangle, bb2::HyperRectangle)
 end
 
 """
+https://arxiv.org/abs/1902.09630
+"""
+function giou(bb1::HyperRectangle, bb2::HyperRectangle)
+  bb_ = bb1 ∩ bb2 # GeometryTypes intersection is imo broken for the empty case
+  bb_i = HyperRectangle(bb_.origin, max.(0, bb_.widths))
+  measure_i = measure(bb_i)
+  measure_u = measure(bb1) + measure(bb2) - measure_i
+
+  smallest_enclosing = bb1 ∪ bb2
+  measure_C = measure(smallest_enclosing)
+  return (measure_i / measure_u) - (1 - measure_u / measure_C)
+end
+
+"""
 linear interpolation in parameter space
 """
 function interpolate(bb1::HyperRectangle, bb2::HyperRectangle, α)
@@ -36,7 +50,7 @@ function random_bb()
   return HyperRectangle(sampled_center .- sampled_widths ./2, sampled_widths)
 end
 
-function hunt_iou(bb_ref, bb1, bb2, iou_goal)
+function hunt_iou(bb_ref, bb1, bb2, iou_goal, iou=iou)
   @assert iou_goal < 1
   family(α) = interpolate(bb1, bb2, α)
   f(α) = iou(bb_ref, family(α)) - iou_goal
@@ -62,18 +76,26 @@ ball_samples(n) = [random_bb_at_iou(bb_reference, 0.5) for _=1:n]
 using Plots: Plots, Shape
 using GeometryTypes: Point
 
-"""
-returns path (path[1] ≠ path[end]) of "unit circle"
-"""
-function iou_ball(iou_radius, bb_ref, widths, n)
-  widths_o = Vec(widths...)
+function start_radius(::typeof(iou), bb_ref, widths_o)
   over_sqrt_2 = 1.5
   # find radius which ensures iou=0
   r = over_sqrt_2 * (maximum(widths_o) + maximum(bb_ref.widths))
+end
+
+function start_radius(::typeof(giou), bb_ref, widths_o)
+  r = 1e3
+end
+
+"""
+returns path (path[1] ≠ path[end]) of "unit circle"
+"""
+function iou_ball(iou_radius, bb_ref, widths, n, iou=iou)
+  widths_o = Vec(widths...)
+  r = start_radius(iou, bb_ref, widths_o)
   centers = (r * Vec(cosd(θ), sind(θ)) for θ in range(0, 360, length=n+1)[1:end-1])
   bb_others = (HyperRectangle(center  .- widths_o/2, widths_o) for center in centers)
   bb_1 = HyperRectangle(center(bb_ref) .- widths_o/2, widths_o)
-  [hunt_iou(bb_ref, bb_1, bb_other, iou_radius) for bb_other in bb_others]
+  [hunt_iou(bb_ref, bb_1, bb_other, iou_radius, iou) for bb_other in bb_others]
 end
 
 end # module
